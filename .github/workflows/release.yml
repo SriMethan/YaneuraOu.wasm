@@ -336,14 +336,13 @@ jobs:
       - name: make
         run: |
           $env:PATH+=';C:\msys64';
-          .\main\script\msys2_build.ps1 -Edition ${{ matrix.edition }} -Compiler ${{ matrix.compiler }} -Target ${{ matrix.target }} -Cpu ${{ matrix.archcpu }} -Extra 'EVAL_EMBEDDING=ON';
+          .\main\script\msys2_build.ps1 -Edition ${{ matrix.edition }} -Compiler ${{ matrix.compiler }} -Target ${{ matrix.target }} -Cpu ${{ matrix.archcpu }} -Extra 'EVAL_EMBEDDING=ON EXTRA_CPPFLAGS=''-DENGINE_OPTIONS=""\\""FV_SCALE=24;BookFile=no_book\\""""''';
         shell: pwsh
 
       - name: add resource
         run: |
           echo 'Suisho5(20211123)-${{ steps.version.outputs.filename }}' > ./main/build/windows/NNUE/engine_name.txt;
           echo 'yaneurao, tayayan' >> .\main\build\windows\NNUE\engine_name.txt;
-          echo 'option name FV_SCALE type spin default 24 min 1 max 128' > ./main/build/windows/NNUE/engine_options.txt;
           Copy-Item ./embedded_nnue.7z ./main/build/embedded_nnue.7z;
 
       - uses: actions/upload-artifact@v2
@@ -394,13 +393,12 @@ jobs:
           cp ./embedded_nnue.cpp ./main/source/eval/nnue/embedded_nnue.cpp;
 
       - name: ndk-build
-        run: ./main/script/android_build.sh -e ${{ matrix.edition }} -x "EVAL_EMBEDDING=ON"
+        run: ./main/script/android_build.sh -e ${{ matrix.edition }} -x 'EVAL_EMBEDDING=ON EXTRA_CPPFLAGS=''-DENGINE_OPTIONS="\"FV_SCALE=24;BookFile=no_book"\"'''
 
       - name: add resource
         run: |
           echo 'Suisho5(20211123)-${{ steps.version.outputs.filename }}' > ./main/build/android/NNUE/engine_name.txt;
           echo 'yaneurao, tayayan' >> ./main/build/android/NNUE/engine_name.txt;
-          echo 'option name FV_SCALE type spin default 24 min 1 max 128' > ./main/build/android/NNUE/engine_options.txt;
           cp ./embedded_nnue.7z ./main/build/embedded_nnue.7z;
 
       - uses: actions/upload-artifact@v2

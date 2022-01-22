@@ -115,8 +115,8 @@ inline uint64_t PEXT64(uint64_t a, uint64_t b) { return pext(a, b); }
 
 #if defined(_MSC_VER)
 
-inline s32 POPCNT32(u32 a) { return __popcnt(a); }
-inline s32 POPCNT64(u64 a) { return __popcnt64(a); }
+inline s32 POPCNT32(u32 a) { return (s32)__popcnt(a); }
+inline s32 POPCNT64(u64 a) { return (s32)__popcnt64(a); }
 
 #elif defined(__GNUC__)
 

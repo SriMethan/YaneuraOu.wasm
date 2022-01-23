@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8" />
+  <title>YaneuraOu.wasm</title>
+  <meta
+    name="viewport"
+    content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scalable=no"
+  />
+  <!-- By curl https://data-url-maker-hiro18181.netlify.app/api/url/https://lab.mzr.jp/shogiking.svg -->
+  <link
+    rel="icon"
+    href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDI0IDEwMjQiPjxwYXRoIGZpbGw9IiNmZDciIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLXdpZHRoPSIzMiIgZD0ibTcyIDEwMDIgMTQwLTg4MyAzMDAtOTkgMzAwIDk5IDE0MCA4ODNINzJaIi8+PHBhdGggZD0iTTM0MiA4MDAgMjEyIDQzM2wxNzYgMTE3LTQyLTI0MCAxNjYgMTg0IDE2Ni0xODQtNDIgMjQwIDE3Ni0xMTctMTMwIDM2N2EyNzEgMjcxIDAgMCAwLTM0MCAwWiIvPjwvc3ZnPg=="
+  />
+  <link
+    rel="stylesheet"
+    href="https://fonts.googleapis.com/css?family=Roboto+Mono"
+  />
+</head>
+
+<!-- CSS -->
+
+<style>
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font: inherit;
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  #root {
+    font-family: "Roboto Mono";
+    font-size: 13px;
+  }
+
+  main {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+  }
+
+  #mode {
+    display: flex;
+    margin-bottom: 6px;
+  }
+
+  #input {
+    display: flex;
+    margin-bottom: 10px;
+  }
+
+  #mode #evaltype, #mode #usihash {
+    margin-right: 6px;
+    background: #eee;
+  }
+
+  #input #command {
+    width: 80%;
+    padding: 2px 0 2px 6px;
+    border: 1px solid #ddd;
+    border-right: 0;
+  }
+
+  #input #send {
+    display: inline-block;
+    padding: 3px 6px 3px 6px;
+    background: #888;
+    color: #fff;
+    font-weight: bold;
+    margin-right: 6px;
+    cursor: pointer;
+  }
+
+  #input #examples {
+    width: 150px;
+    background: #eee;
+  }
+
+  #misc {
+    margin-bottom: 10px;
+  }
+
+  #output {
+    flex: 1 1 auto;
+    width: 100%;
+    border: 1px solid #ddd;
+    padding: 10px;
+    overflow: scroll;
+    box-shadow: inset 1px 1px 2px #eee;
+    font-size: 11px;
+  }
+</style>
+
+<body>
+  <div id="root"></div>
+
+  <!-- Javascript -->
+
+  <script src="https://cdn.jsdelivr.net/npm/mithril@2.0.4/mithril.min.js"></script>
+  <script>
+    (() => {
+      const queries = {};
+      const queryStr = window.location.search.slice(1);
+      if (queryStr) {
+        queryStr.split(';').forEach(function(s){
+          const queryArr = s.split('=');
+          queries[queryArr[0]] = queryArr[1];
+        });
+      }
+
+      const infoList = [
+        {
+          ident: "k-p",
+          labal: "K-P(SuishoPetite)",
+          func: "YaneuraOu_K_P",
+          js: "./yaneuraou.k-p.js",
+          wasm: "./yaneuraou.k-p.wasm",
+          isnnue: true,
+          ready: true,
+        },
+        {
+          ident: "halfkp",
+          labal: "HalfKP(Suisho5)",
+          func: "YaneuraOu_HalfKP",
+          js: "./yaneuraou.halfkp.js",
+          wasm: "./yaneuraou.halfkp.wasm",
+          isnnue: true,
+          ready: true,
+        },
+        {
+          ident: "material",
+          labal: "MaterialLv1",
+          func: "YaneuraOu_Material",
+          js: "./yaneuraou.material.js",
+          wasm: "./yaneuraou.material.wasm",
+          isnnue: false,
+          ready: true,
+        },
+        {
+          ident: "material9",
+          labal: "MaterialLv9",
+          func: "YaneuraOu_Material9",
+          js: "./yaneuraou.material9.js",
+          wasm: "./yaneuraou.material9.wasm",
+          isnnue: false,
+          ready: true,
+        },
+      ].map((v, i) => { v.idx = i; return v; });
+      const infoMap = {};
+      infoList.forEach((v) => {
+        infoMap[v.ident] = v;
+      });
+
+      const evalTypeInfo = () => {
+        let key = `${queries['EvalType']}`.toLowerCase();
+        return infoMap[key] || infoMap['k-p'];
+      };
+
+      const $ = (...args) => document.querySelector(...args);
+
+      const formatMB = (n) => {
+        return (n ? (n / 1e6).toPrecision(3) : "?") + "MB";
+      };
+
+      const hardwareConcurrency = navigator.hardwareConcurrency;
+
+      const isSupported = () => {
+        if (typeof WebAssembly !== "object") return false;
+        const source = Uint8Array.from([
+          0, 97, 115, 109, 1, 0, 0, 0, 1, 5, 1, 96, 0, 1, 123, 3, 2, 1, 0, 7, 8,
+          1, 4, 116, 101, 115, 116, 0, 0, 10, 15, 1, 13, 0, 65, 0, 253, 17, 65, 0,
+          253, 17, 253, 186, 1, 11,
+        ]);
+        if (
+          typeof WebAssembly.validate !== "function" ||
+          !WebAssembly.validate(source)
+        )
+          return false;
+        if (typeof Atomics !== "object") return false;
+        if (typeof SharedArrayBuffer !== "function") return false;
+        return true;
+      };
+
+      const RequestProgress = ({ attrs: { url, onFinishDownload } }) => {
+        let state = "INIT"; // 'LOADING', 'DONE', 'FAILED'
+        let loaded = 0;
+        let total = 0;
+
+        const oninit = () => {
+          state = "LOADING";
+          m.request({
+            url: url,
+            method: "GET",
+            responseType: "arraybuffer",
+            headers: { Accept: "*/*" },
+            config: (xhr) => {
+              xhr.onprogress = (e) => {
+                // TODO:
+                // When gzip compressed, the value of "loaded/total" gets messed up.
+                // On Chrome, "loaded" is the value after decompression, but on the other hand,
+                // On Firefox, "loaded" is the value before decompression.
+                loaded = e.loaded;
+                total =
+                  e.total ||
+                  Number(
+                    e.target.getResponseHeader("x-decompressed-content-length")
+                  );
+                m.redraw();
+              };
+            },
+          }).then(
+            (response) => {
+              state = "DONE";
+              onFinishDownload(response);
+            },
+            (e) => {
+              console.error(e);
+              state = "FAILED";
+              onFinishDownload(null);
+            }
+          );
+        };
+
+        const view = () => {
+          const fraction =
+            total == -1 ? `?MB/?MB` : `${formatMB(loaded)}/${formatMB(total)}`;
+          return m("span", [
+            `${fraction} [${state}] `,
+            m(
+              "span",
+              {
+                style: "cursor: pointer;",
+                onclick: () =>
+                  window.alert(
+                    "On some browsers, download size might look contradicted due to file compression."
+                  ),
+              },
+              "[?]"
+            ),
+          ]);
+        };
+
+        return { oninit, view };
+      };
+
+      const App = () => {
+        let yaneuraou = null;
+        let yaneuraou_state = "INIT"; // 'LOADING', 'BEFOREREADY', 'READY', 'FAILED'
+        let output = "";
+        let tail_mode = true;
+
+        const scrollOutput = () => {
+          if (!tail_mode) {
+            return;
+          }
+          $("#output").scrollTo({
+            top: $("#output").scrollHeight,
+            behavior: "smooth",
+          });
+        };
+
+        // Make error catchable
+        const loadYaneuraOu = async (params) => {
+          return window[evalTypeInfo().func](params);
+        };
+
+        const wCache = {};
+        const rCache = {};
+        const postCommand = (command) => {
+          output += ">> " + command + "\n";
+          m.redraw();
+          yaneuraou.postMessage(command);
+        };
+        const postCommandWait = (command, waitResp, ...gatherResps) => {
+          wCache[waitResp] = true;
+          for (const gatherResp of gatherResps) {
+            rCache[gatherResp] = null;
+          }
+          postCommand(command);
+          return new Promise((resolve) => {
+            (function poll() {
+              if (wCache[waitResp]) {
+                setTimeout(poll, 1);
+              } else {
+                delete wCache[waitResp];
+                const res = {};
+                res[waitResp] = rCache[waitResp];
+                for (const gatherResp of gatherResps) {
+                  res[gatherResp] = rCache[gatherResp];
+                }
+                resolve(res);
+              }
+            })();
+          });
+        };
+        const sendCommand = () => {
+          const command = $("#command").value;
+          if (command.length > 0) {
+            postCommand(command);
+          }
+        };
+        const sleepPromize = (sleepTime) => new Promise((resolve) => {
+          setTimeout(() => { resolve(); }, sleepTime);
+        });
+        const selfPlay = async () => {
+          yaneuraou.addMessageListener((line) => {
+            output += line + "\n";
+            m.redraw();
+            Object.keys(rCache)
+              .filter((v) => `${line}`.startsWith(v))
+              .forEach((v) => { rCache[v] = line; })
+            Object.keys(wCache)
+              .filter((v) => `${line}`.startsWith(v))
+              .forEach((v) => { rCache[v] = line; wCache[v] = false; });
+          });
+
+          postCommand('compiler');
+          await postCommandWait('usi', 'usiok');
+          postCommand(`setoption name USI_Hash value ${Math.min(Math.max(queries['USI_Hash']||0, 16), 1024)}`);
+          postCommand('setoption name PvInterval value 0');
+          postCommand(`setoption name Threads value ${Math.min(hardwareConcurrency, 32)}`);
+          await postCommandWait('isready', 'readyok');
+          yaneuraou_state = 'SELFPLAY';
+          const sfenList = [];
+          const sfenRepCountObj = {};
+          let thinkLoop = true;
+          while (thinkLoop) {
+            // setposition
+            const pos = `position startpos moves ${sfenList.join(' ')}`
+            postCommand(pos);
+            // get sfen
+            const res_d = await postCommandWait('d', 'sfen');
+            const sfen = `${res_d.sfen}`;
+            // trim tesuu
+            let ri = sfen.length;
+            while (sfen.codePointAt(ri - 1) == 32) { ri--; }
+            while (sfen.codePointAt(ri - 1) >= 48 && sfen.codePointAt(ri - 1) <= 57) { ri--; }
+            while (sfen.codePointAt(ri - 1) == 32) { ri--; }
+            const sfentr = sfen.substring(0, ri);
+            // sennichite check
+            // Attention: This code does not determine if it is a continuous check sennichite.
+            sfenRepCountObj[sfentr] = (sfenRepCountObj[sfentr]|0) + 1;
+            if (sfenRepCountObj[sfentr] >= 2) { output += `# info : position repetition ${sfenRepCountObj[sfentr]} times\n`; }
+            if (sfenRepCountObj[sfentr] >= 4) { postCommand('gameover draw'); break; }
+            // go think
+            const res_go = await postCommandWait('go movetime 3000', 'bestmove', 'info');
+            const bestmove = `${res_go.bestmove}`.split(' ')[1];
+            sfenList.push(bestmove);
+            // check resign
+            if (bestmove == 'resign') { postCommand('gameover lose'); break; }
+          }
+          yaneuraou.terminate();
+          yaneuraou_state = 'TERMINATED';
+        }
+
+        const onFinishDownload = (data) => {
+          if (!data) {
+            yaneuraou_state = "FAILED";
+            m.redraw();
+            return;
+          }
+
+          loadYaneuraOu({ wasmBinary: data })
+            .then((_yaneuraou) => {
+              yaneuraou = _yaneuraou;
+              yaneuraou_state = "READY";
+              selfPlay();
+            })
+            .catch((e) => {
+              yaneuraou_state = "FAILED";
+              output += "---error\n" + e + "\n";
+              throw e;
+            })
+            .finally(() => m.redraw());
+        };
+
+        const oninit = () => {
+          yaneuraou_state = "LOADING";
+        };
+
+        const view = () => {
+          const is_ready = yaneuraou_state == "READY";
+
+          return m("main", [
+            m("div#mode", [
+              m(
+                "select#evaltype",
+                {
+                  selectedIndex: evalTypeInfo().idx,
+                  onchange: (e) => {
+                    if (is_ready) {
+                      yaneuraou.terminate();
+                    }
+                    location.replace(`?EvalType=${e.target.value};USI_Hash=${queries['USI_Hash']|0||16}`);
+                  }
+                },
+                infoList.map((v) => m("option", { value: v.ident }, v.labal)),
+              ),
+              m(
+                "select#usihash",
+                {
+                  selectedIndex: {
+                    '16': 0,
+                    '1024': 1,
+                  }[`${queries['USI_Hash']}`.toLowerCase()]|0,
+                  onchange: (e) => {
+                    if (is_ready) {
+                      yaneuraou.terminate();
+                    }
+                    location.replace(`?EvalType=${queries['EvalType']||''};USI_Hash=${e.target.value}`);
+                  }
+                },
+                [
+                  m("option", { value: 16 }, "USI_Hash=16"),
+                  m("option", { value: 1024 }, "USI_Hash=1024"),
+                ]
+              ),
+            ]),
+            m("div#misc", [
+              m("div", [
+                "- Download: ",
+                m(RequestProgress, {
+                  url: evalTypeInfo().wasm,
+                  onFinishDownload,
+                }),
+              ]),
+              m("div", [
+                m("div", `- YaneuraOu state: ${yaneuraou_state}`),
+                m("span", { style: "margin-right: 5px;" }, "- Tail mode:"),
+                m(
+                  "span",
+                  {
+                    style: "cursor: pointer;",
+                    onclick: () => {
+                      tail_mode = !tail_mode;
+                      scrollOutput();
+                    },
+                  },
+                  [tail_mode ? "[x]" : "[ ]"]
+                ),
+              ]),
+            ]),
+            m("div#output", { onupdate: scrollOutput }, m("pre", output)),
+            m("div#footer", [
+              "WebAssembly fork WIP source: ",
+              m("a", { href: "https://github.com/mizar/YaneuraOu/tree/wasm/" }, "https://github.com/mizar/YaneuraOu/tree/wasm/"),
+              ".",
+            ]),
+          ]);
+        };
+
+        return { oninit, view };
+      };
+
+      if (!isSupported()) {
+        window.alert(
+          "Your browser is not supported. For more information, please take a look at https://github.com/yaneurao/YaneuraOu/."
+        );
+      } else {
+        const scr = document.createElement('script');
+        scr.type = 'text/javascript';
+        scr.src = evalTypeInfo().js;
+        const s = document.getElementsByTagName('script')[0];
+        scr.onload = (_e) => {
+          m.mount($("#root"), App);
+        };
+        s.parentNode.insertBefore(scr, s);
+      }
+    })();
+  </script>
+</body>

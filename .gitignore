@@ -5,7 +5,7 @@
 
 *.gitattributes
 # *.gitignore
-*.bat
+# *.bat
 *.rb
 YaneuraOu_backup*.lnk
 バージョン履歴.txt
@@ -17,6 +17,21 @@ YaneuraOu_backup*.lnk
 *.vspx
 *~
 ~*
+.dl/
+.vscode/
+package-lock.json
+yarn.lock
+npmpackages/**/lib/*.js
+npmpackages/**/lib/*.js.gz
+npmpackages/**/lib/*.js.br
+npmpackages/**/lib/*.wasm
+npmpackages/**/lib/*.wasm.gz
+npmpackages/**/lib/*.wasm.br
+docker/
+public/yaneuraou*
+*_asm.bat
+*.nnue
+*.nnue.*
 
 # embedded_nnue.cpp
 embedded_nnue.cpp
@@ -49,7 +64,7 @@ x64/
 x86/
 build/
 bld/
-[Bb]in/
+#[Bb]in/
 [Oo]bj/
 exe/
 

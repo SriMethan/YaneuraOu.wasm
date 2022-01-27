@@ -11,10 +11,9 @@
     rel="icon"
     href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDI0IDEwMjQiPjxwYXRoIGZpbGw9IiNmZDciIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLXdpZHRoPSIzMiIgZD0ibTcyIDEwMDIgMTQwLTg4MyAzMDAtOTkgMzAwIDk5IDE0MCA4ODNINzJaIi8+PHBhdGggZD0iTTM0MiA4MDAgMjEyIDQzM2wxNzYgMTE3LTQyLTI0MCAxNjYgMTg0IDE2Ni0xODQtNDIgMjQwIDE3Ni0xMTctMTMwIDM2N2EyNzEgMjcxIDAgMCAwLTM0MCAwWiIvPjwvc3ZnPg=="
   />
-  <link
-    rel="stylesheet"
-    href="https://fonts.googleapis.com/css?family=Roboto+Mono"
-  />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP&family=Roboto+Mono&display=swap" rel="stylesheet" />
 </head>
 
 <!-- CSS -->
@@ -37,7 +36,7 @@
   }
 
   #root {
-    font-family: "Roboto Mono";
+    font-family: "Roboto Mono", "Noto Sans JP";
     font-size: 13px;
   }
 
@@ -92,12 +91,34 @@
   #output {
     flex: 1 1 auto;
     width: 100%;
+    overflow: hidden;
+  }
+
+  #oig {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    overflow: hidden;
+  }
+
+  #board {
+    flex: 0 0 auto;
+    width: 500px;
+    height: 100%;
     border: 1px solid #ddd;
-    padding: 10px;
+  }
+
+  #opre {
+    flex: 1 1 auto;
+    height: 100%;
     overflow: scroll;
+    padding: 10px;
+    border: 1px solid #ddd;
     box-shadow: inset 1px 1px 2px #eee;
     font-size: 11px;
   }
+
 </style>
 
 <body>
@@ -262,8 +283,8 @@
           if (!tail_mode) {
             return;
           }
-          $("#output").scrollTo({
-            top: $("#output").scrollHeight,
+          $("#opre").scrollTo({
+            top: $("#opre").scrollHeight,
             behavior: "smooth",
           });
         };
@@ -449,7 +470,9 @@
                 ),
               ]),
             ]),
-            m("div#output", { onupdate: scrollOutput }, m("pre", output)),
+            m("div#output", { onupdate: scrollOutput }, m("div#oig", [
+              m("div#board"), m("pre#opre", output),
+            ])),
             m("div#footer", [
               "WebAssembly fork WIP source: ",
               m("a", { href: "https://github.com/mizar/YaneuraOu/tree/wasm/" }, "https://github.com/mizar/YaneuraOu/tree/wasm/"),

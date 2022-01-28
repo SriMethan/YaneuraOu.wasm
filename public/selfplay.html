@@ -4,7 +4,7 @@
   <title>YaneuraOu.wasm</title>
   <meta
     name="viewport"
-    content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scalable=no"
+    content="width=device-width, height=device-height, initial-scale=1, maximum-scale=0.5"
   />
   <!-- By curl https://data-url-maker-hiro18181.netlify.app/api/url/https://lab.mzr.jp/shogiking.svg -->
   <link
@@ -57,7 +57,7 @@
     margin-bottom: 10px;
   }
 
-  #mode #evaltype, #mode #usihash {
+  #mode #evaltype, #mode #usihash, #mode #movetime {
     margin-right: 6px;
     background: #eee;
   }
@@ -69,14 +69,15 @@
     border-right: 0;
   }
 
-  #input #send {
-    display: inline-block;
+  #selfplay {
     padding: 3px 6px 3px 6px;
-    background: #888;
-    color: #fff;
     font-weight: bold;
     margin-right: 6px;
     cursor: pointer;
+  }
+
+  #selfplay:disabled {
+    cursor: unset;
   }
 
   #input #examples {
@@ -104,9 +105,10 @@
 
   #board {
     flex: 0 0 auto;
-    width: 500px;
+    width: 580px;
     height: 100%;
     border: 1px solid #ddd;
+    overflow: hidden;
   }
 
   #opre {
@@ -127,6 +129,7 @@
   <!-- Javascript -->
 
   <script src="https://cdn.jsdelivr.net/npm/mithril@2.0.4/mithril.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/kifu-for-js@3/bundle/kifu-for-js.min.js"></script>
   <script>
     (() => {
       const queries = {};
@@ -278,6 +281,24 @@
         let yaneuraou_state = "INIT"; // 'LOADING', 'BEFOREREADY', 'READY', 'FAILED'
         let output = "";
         let tail_mode = true;
+        let movetime = 3000;
+
+        // lazy updateing of log output
+        let lastOutputDraw = performance.now();
+        const outputDrawInterval = 60;
+        const outputRedraw = () => {
+          const tryRedraw = (aTime) => {
+            const cTime = performance.now();
+            if (aTime < lastOutputDraw) { return; }
+            if (cTime > lastOutputDraw + outputDrawInterval) {
+              lastOutputDraw = performance.now();
+              m.redraw();
+            } else {
+              setTimeout(tryRedraw, outputDrawInterval, aTime);
+            }
+          };
+          tryRedraw(performance.now());
+        };
 
         const scrollOutput = () => {
           if (!tail_mode) {
@@ -297,9 +318,9 @@
         const wCache = {};
         const rCache = {};
         const postCommand = (command) => {
-          output += ">> " + command + "\n";
-          m.redraw();
+          output += `>> ${command}\n`;
           yaneuraou.postMessage(command);
+          outputRedraw();
         };
         const postCommandWait = (command, waitResp, ...gatherResps) => {
           wCache[waitResp] = true;
@@ -329,28 +350,35 @@
             postCommand(command);
           }
         };
-        const sleepPromize = (sleepTime) => new Promise((resolve) => {
-          setTimeout(() => { resolve(); }, sleepTime);
-        });
+        let kifuStore = undefined;
         const selfPlay = async () => {
-          yaneuraou.addMessageListener((line) => {
-            output += line + "\n";
-            m.redraw();
-            Object.keys(rCache)
-              .filter((v) => `${line}`.startsWith(v))
-              .forEach((v) => { rCache[v] = line; })
-            Object.keys(wCache)
-              .filter((v) => `${line}`.startsWith(v))
-              .forEach((v) => { rCache[v] = line; wCache[v] = false; });
-          });
+          if (yaneuraou_state != 'READY') {
+            return;
+          }
 
-          postCommand('compiler');
-          await postCommandWait('usi', 'usiok');
-          postCommand(`setoption name USI_Hash value ${Math.min(Math.max(queries['USI_Hash']||0, 16), 1024)}`);
-          postCommand('setoption name PvInterval value 0');
-          postCommand(`setoption name Threads value ${Math.min(hardwareConcurrency, 32)}`);
-          await postCommandWait('isready', 'readyok');
+          // delete log, leaving last 1000 lines
+          ((output_a) => {
+            if (output_a.length > 1000) {
+              output = output_a.slice(output_a.length - 1000).join("\n");
+              $("#opre").scrollTo({ top: 0, left: 0, behavior: 'instant' });
+              m.redraw(true);
+              setTimeout(() => {
+                $("#opre").scrollTo({ top: $("#opre").scrollHeight, behavior: 'instant' });
+              }, 60);
+            }
+          })(output.split("\n"));
+
+          let csa = `V2.2\nN+${evalTypeInfo().ident}\nN-${evalTypeInfo().ident}\nPI\n+\n`;
+
+          if (kifuStore) {
+            await kifuStore.loadKifu(csa);
+            kifuStore.player.goto(0);
+          } else {
+            kifuStore = await window.KifuForJS.loadString(csa, "board");
+          }
+
           yaneuraou_state = 'SELFPLAY';
+          m.redraw();
           const sfenList = [];
           const sfenRepCountObj = {};
           let thinkLoop = true;
@@ -367,20 +395,172 @@
             while (sfen.codePointAt(ri - 1) >= 48 && sfen.codePointAt(ri - 1) <= 57) { ri--; }
             while (sfen.codePointAt(ri - 1) == 32) { ri--; }
             const sfentr = sfen.substring(0, ri);
+            // csa board
+            const csa_board = (() => {
+              const b = Array.from({ length: 9 }, (i) => Array.from({ length: 9 }, (j) => ''));
+              let i = 5, x = 8, y = 0;
+              while (y < 9) {
+                switch (sfen[i]) {
+                  case 'K': b[x][y] = '+OU'; x -= 1; break;
+                  case 'R': b[x][y] = '+HI'; x -= 1; break;
+                  case 'B': b[x][y] = '+KA'; x -= 1; break;
+                  case 'G': b[x][y] = '+KI'; x -= 1; break;
+                  case 'S': b[x][y] = '+GI'; x -= 1; break;
+                  case 'N': b[x][y] = '+KE'; x -= 1; break;
+                  case 'L': b[x][y] = '+KY'; x -= 1; break;
+                  case 'P': b[x][y] = '+FU'; x -= 1; break;
+                  case 'k': b[x][y] = '-OU'; x -= 1; break;
+                  case 'r': b[x][y] = '-HI'; x -= 1; break;
+                  case 'b': b[x][y] = '-KA'; x -= 1; break;
+                  case 'g': b[x][y] = '-KI'; x -= 1; break;
+                  case 's': b[x][y] = '-GI'; x -= 1; break;
+                  case 'n': b[x][y] = '-KE'; x -= 1; break;
+                  case 'l': b[x][y] = '-KY'; x -= 1; break;
+                  case 'p': b[x][y] = '-FU'; x -= 1; break;
+                  case '+':
+                    switch(sfen[i + 1]) {
+                      case 'R': b[x][y] = '+RY'; x -= 1; break;
+                      case 'B': b[x][y] = '+UM'; x -= 1; break;
+                      case 'S': b[x][y] = '+NG'; x -= 1; break;
+                      case 'N': b[x][y] = '+NK'; x -= 1; break;
+                      case 'L': b[x][y] = '+NY'; x -= 1; break;
+                      case 'P': b[x][y] = '+TO'; x -= 1; break;
+                      case 'r': b[x][y] = '-RY'; x -= 1; break;
+                      case 'b': b[x][y] = '-UM'; x -= 1; break;
+                      case 's': b[x][y] = '-NG'; x -= 1; break;
+                      case 'n': b[x][y] = '-NK'; x -= 1; break;
+                      case 'l': b[x][y] = '-NY'; x -= 1; break;
+                      case 'p': b[x][y] = '-TO'; x -= 1; break;
+                      default: return undefined;
+                    }
+                    i += 1;
+                    break;
+                  case '1': x -= 1; break;
+                  case '2': x -= 2; break;
+                  case '3': x -= 3; break;
+                  case '4': x -= 4; break;
+                  case '5': x -= 5; break;
+                  case '6': x -= 6; break;
+                  case '7': x -= 7; break;
+                  case '8': x -= 8; break;
+                  case '9': x -= 9; break;
+                  case '/': y += 1; x = 8; break;
+                  case ' ': return b;
+                  default: return undefined;
+                }
+                i += 1;
+              }
+              return undefined;
+            })();
+            if (!csa_board) {
+              output += `# info : sfen parse board failed. break.\n`;
+              break;
+            }
+            // csa side
+            const csa_side = (() => {
+              switch(sfen.split(' ')[2]) {
+                case 'b': return '+';
+                case 'w': return '-';
+                default: return undefined;
+              }
+            })();
+            if (!csa_side) {
+              output += `# info : sfen parse side failed. break.\n`;
+              break;
+            }
             // sennichite check
             // Attention: This code does not determine if it is a continuous check sennichite.
             sfenRepCountObj[sfentr] = (sfenRepCountObj[sfentr]|0) + 1;
-            if (sfenRepCountObj[sfentr] >= 2) { output += `# info : position repetition ${sfenRepCountObj[sfentr]} times\n`; }
-            if (sfenRepCountObj[sfentr] >= 4) { postCommand('gameover draw'); break; }
+            if (sfenRepCountObj[sfentr] >= 2) {
+              output += `# info : position repetition ${sfenRepCountObj[sfentr]} times\n`;
+              outputRedraw();
+            }
+            if (sfenRepCountObj[sfentr] >= 4) {
+              postCommand('gameover draw');
+              csa += `%SENNICHITE\n`;
+              await kifuStore.loadKifu(csa);
+              kifuStore.player.goto(Infinity);
+              break;
+            }
             // go think
-            const res_go = await postCommandWait('go movetime 3000', 'bestmove', 'info');
+            const res_go = await postCommandWait(`go movetime ${movetime}`, 'bestmove', 'info');
             const bestmove = `${res_go.bestmove}`.split(' ')[1];
             sfenList.push(bestmove);
             // check resign
-            if (bestmove == 'resign') { postCommand('gameover lose'); break; }
+            if (bestmove == 'resign') {
+              postCommand('gameover lose');
+              csa += `%TORYO\n`;
+              if (res_go.info) { csa += `'${res_go.info}\n`; }
+              csa += `'${res_go.bestmove}\n`;
+              await kifuStore.loadKifu(csa);
+              kifuStore.player.goto(Infinity);
+              break;
+            }
+            // check win
+            if (bestmove == 'win') {
+              postCommand('gameover win');
+              csa += `%KACHI\n`;
+              if (res_go.info) { csa += `'${res_go.info}\n`; }
+              csa += `'${res_go.bestmove}\n`;
+              await kifuStore.loadKifu(csa);
+              kifuStore.player.goto(Infinity);
+              break;
+            }
+            // csa move
+            if (bestmove.match(/^[1-9][a-i][1-9][a-i]\+?$/)) {
+              const fromx = bestmove.codePointAt(0) - 48;
+              const fromy = bestmove.codePointAt(1) - 96;
+              const tox = bestmove.codePointAt(2) - 48;
+              const toy = bestmove.codePointAt(3) - 96;
+              const toptype = (bestmove[4] == '+') ? {
+                '+HI': '+RY',
+                '+KA': '+UM',
+                '+GI': '+NG',
+                '+KE': '+NK',
+                '+KY': '+NY',
+                '+FU': '+TO',
+                '-HI': '-RY',
+                '-KA': '-UM',
+                '-GI': '-NG',
+                '-KE': '-NK',
+                '-KY': '-NY',
+                '-FU': '-TO',
+              }[csa_board[fromx - 1][fromy - 1]] : csa_board[fromx - 1][fromy - 1];
+              if (!toptype) {
+                output += `# info : piecetype fetch failed. break.\n`;
+                break;
+              }
+              if (csa_side != toptype[0]) {
+                output += `# info : piece side differ. break.\n`;
+                break;
+              }
+              csa += `${csa_side}${fromx}${fromy}${tox}${toy}${toptype.substring(1)}\n`;
+            } else if (bestmove.match(/^[RBGSNLP]\*[1-9][a-i]\+?$/)) {
+              const ptype = {
+                  "R": "HI",
+                  "B": "KA",
+                  "G": "KI",
+                  "S": "GI",
+                  "N": "KE",
+                  "L": "KY",
+                  "P": "FU",
+                }[bestmove[0]];
+              const tox = bestmove.codePointAt(2) - 48;
+              const toy = bestmove.codePointAt(3) - 96;
+              csa += `${csa_side}00${tox}${toy}${ptype}\n`;
+            } else {
+              output += `# info : bestmove parse failed. break.\n`;
+              break;
+            }
+            if (res_go.info) { csa += `'${res_go.info}\n`; }
+            csa += `'${res_go.bestmove}\n`;
+            await kifuStore.loadKifu(csa);
+            kifuStore.player.goto(Infinity);
           }
-          yaneuraou.terminate();
-          yaneuraou_state = 'TERMINATED';
+          outputRedraw();
+          await postCommandWait('isready', 'readyok');
+          yaneuraou_state = 'READY';
+          m.redraw();
         }
 
         const onFinishDownload = (data) => {
@@ -393,8 +573,27 @@
           loadYaneuraOu({ wasmBinary: data })
             .then((_yaneuraou) => {
               yaneuraou = _yaneuraou;
-              yaneuraou_state = "READY";
-              selfPlay();
+              (async () => {
+                yaneuraou.addMessageListener((line) => {
+                  output += line + "\n";
+                  Object.keys(rCache)
+                    .filter((v) => `${line}`.startsWith(v))
+                    .forEach((v) => { rCache[v] = line; })
+                  Object.keys(wCache)
+                    .filter((v) => `${line}`.startsWith(v))
+                    .forEach((v) => { rCache[v] = line; wCache[v] = false; });
+                  outputRedraw();
+                });
+                postCommand('compiler');
+                await postCommandWait('usi', 'usiok');
+                postCommand(`setoption name USI_Hash value ${Math.min(Math.max(queries['USI_Hash']||0, 16), 1024)}`);
+                postCommand('setoption name PvInterval value 0');
+                postCommand(`setoption name Threads value ${Math.min(hardwareConcurrency, 32)}`);
+                await postCommandWait('isready', 'readyok');
+                yaneuraou_state = "READY";
+                m.redraw();
+                kifuStore = await window.KifuForJS.loadString(`V2.2\nN+${evalTypeInfo().ident}\nN-${evalTypeInfo().ident}\nPI\n+\n`, "board");
+              })();
             })
             .catch((e) => {
               yaneuraou_state = "FAILED";
@@ -445,6 +644,39 @@
                   m("option", { value: 1024 }, "USI_Hash=1024"),
                 ]
               ),
+              m(
+                "select#movetime",
+                {
+                  onchange: (e) => {
+                    movetime = e.target.value;
+                  }
+                },
+                [
+                  m("option", { value: 100, selected: movetime == 100 }, "0.1s"),
+                  m("option", { value: 200, selected: movetime == 200 }, "0.2s"),
+                  m("option", { value: 300, selected: movetime == 300 }, "0.3s"),
+                  m("option", { value: 500, selected: movetime == 500 }, "0.5s"),
+                  m("option", { value: 700, selected: movetime == 700 }, "0.7s"),
+                  m("option", { value: 1000, selected: movetime == 1000 }, "1s"),
+                  m("option", { value: 2000, selected: movetime == 2000 }, "2s"),
+                  m("option", { value: 3000, selected: movetime == 3000 }, "3s"),
+                  m("option", { value: 5000, selected: movetime == 5000 }, "5s"),
+                  m("option", { value: 7000, selected: movetime == 7000 }, "7s"),
+                  m("option", { value: 10000, selected: movetime == 10000 }, "10s"),
+                  m("option", { value: 15000, selected: movetime == 15000 }, "15s"),
+                  m("option", { value: 20000, selected: movetime == 20000 }, "20s"),
+                  m("option", { value: 30000, selected: movetime == 30000 }, "30s"),
+                  m("option", { value: 40000, selected: movetime == 40000 }, "40s"),
+                  m("option", { value: 50000, selected: movetime == 50000 }, "50s"),
+                  m("option", { value: 60000, selected: movetime == 60000 }, "60s"),
+                ]
+              ),
+              m(
+                "button#selfplay",
+                { disabled: (!is_ready || yaneuraou_state != "READY"), onclick: selfPlay },
+                "SelfPlay"
+              ),
+              "Note: This demo (started by pressing `SelfPlay`) will use a long time CPU, up to 32 threads.",
             ]),
             m("div#misc", [
               m("div", [

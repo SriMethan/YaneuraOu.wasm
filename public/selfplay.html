@@ -474,6 +474,9 @@
             if (sfenRepCountObj[sfentr] >= 2) {
               output += `# info : position repetition ${sfenRepCountObj[sfentr]} times\n`;
               outputRedraw();
+              csa += `'# info : position repetition ${sfenRepCountObj[sfentr]} times\n`;
+              await kifuStore.loadKifu(csa);
+              kifuStore.player.goto(Infinity);
             }
             if (sfenRepCountObj[sfentr] >= 4) {
               postCommand('gameover draw');

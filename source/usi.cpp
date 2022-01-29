@@ -1072,6 +1072,8 @@ void USI::loop(int argc, char* argv[])
 			cmd = cmds.front();
 			cmds.pop();
 		}
+		istringstream is(cmd);
+		is >> skipws >> token;
 
 		usi_cmdexec(pos, states, cmd, cmds);
 

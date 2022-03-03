@@ -1111,13 +1111,13 @@ jobs:
                 - ORT-DML : Windows 10 DirectML (DML) 対応のGPU向け。（対応環境であればおそらくORT-TRT や TensorRTのが高速）
                   cf. [DirectML の概要](https://docs.microsoft.com/ja-jp/windows/win32/direct3d12/dml-intro)
                 - ORT-TRT : NVIDIA TensorRT 対応のGPU向け。CUDA, cuDNN, TensorRT の導入も必要です。
-                  - CUDA (開発環境は 11.6.0)
+                  - CUDA (開発環境は 11.6.1)
                     - [Latest CUDA Toolkit Download](https://developer.nvidia.com/cuda-downloads)
                     - [CUDA Toolkit Archive](https://developer.nvidia.com/cuda-toolkit-archive)
                     - [CUDA Installation Guide for Microsoft Windows (CUDAインストール手順, CUDA 最新版)](https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html)
-                    - CUDA Toolkit 11.6.0 の場合の導入例:
-                      - [Local Installer (2.4GB)](https://developer.download.nvidia.com/compute/cuda/11.6.0/local_installers/cuda_11.6.0_511.23_windows.exe) もしくは [Network Installer (28.4MB)](https://developer.download.nvidia.com/compute/cuda/11.6.0/network_installers/cuda_11.6.0_windows_network.exe) をダウンロード・実行してインストール
-                  - cuDNN (開発環境は v8.2.4 (Archive))
+                    - CUDA Toolkit 11.6.1 の場合の導入例:
+                      - [Local Installer (2.5GB)](https://developer.download.nvidia.com/compute/cuda/11.6.1/local_installers/cuda_11.6.1_511.65_windows.exe) もしくは [Network Installer (28.5MB)](https://developer.download.nvidia.com/compute/cuda/11.6.1/network_installers/cuda_11.6.1_windows_network.exe) をダウンロード・実行してインストール
+                  - cuDNN (開発環境は [v8.2.4 (Archive)](https://developer.nvidia.com/rdp/cudnn-archive))
                     - [cuDNN Download](https://developer.nvidia.com/rdp/cudnn-download) (要ログイン)
                     - (注: Windows版では現状、v8.3.x 系は非推奨。過去のバージョンは [cuDNN Archive](https://developer.nvidia.com/rdp/cudnn-archive) (要ログイン) を参照。)
                     - [Installing cuDNN On Windows (cuDNNインストール手順)](https://docs.nvidia.com/deeplearning/cudnn/install-guide/index.html#install-windows)

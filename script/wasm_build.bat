@@ -2,4 +2,4 @@
 cd %~dp0
 cd ..
 rem docker pull emscripten/emsdk
-docker run --rm -v %CD%:/src emscripten/emsdk:3.1.3 npm run-script build
+docker run --rm -v %CD%:/src emscripten/emsdk:3.1.2 npm run-script build

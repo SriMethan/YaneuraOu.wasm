@@ -8,7 +8,9 @@
 ## Usage
 
 ```typescript
-export interface YaneuraOuModule
+/// <reference types="emscripten" />
+
+export interface YaneuraOuModule extends EmscriptenModule
 {
   addMessageListener: (listener: (line: string) => void) => void;
   removeMessageListener: (listener: (line: string) => void) => void;
@@ -16,7 +18,7 @@ export interface YaneuraOuModule
   terminate: () => void;
 }
 
-export function YaneuraOu_K_P(userModule?: any): Promise<YaneuraOuModule>;
+export const YaneuraOu_K_P: EmscriptenModuleFactory<YaneuraOuModule>;
 ```
 
 ## Example

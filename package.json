@@ -19,7 +19,7 @@
     "publish:prerelease": "lerna publish prerelease --force-publish=@mizarjp/yaneuraou.*",
     "publish:git": "lerna publish from-git --force-publish=@mizarjp/yaneuraou.*",
     "publish:package": "lerna publish from-package --force-publish=@mizarjp/yaneuraou.*",
-    "serve": "serve public --no-compression",
+    "serve": "node script/express.js",
     "build": "npm run-script halfkp && npm run-script k-p && npm run-script halfkp.noeval && npm run-script halfkpe9.noeval && npm run-script halfkpvm.noeval && npm run-script k-p.noeval && npm run-script material && npm run-script material9",
     "eval:halfkp": "if [ ! -s .dl/suisho5_20211123.halfkp.nnue.cpp.gz ]; then curl --create-dirs -RLo .dl/suisho5_20211123.halfkp.nnue.cpp.gz https://github.com/mizar/YaneuraOu/releases/download/resource/suisho5_20211123.halfkp.nnue.cpp.gz ; fi && gzip -cd .dl/suisho5_20211123.halfkp.nnue.cpp.gz > source/eval/nnue/embedded_nnue.cpp",
     "eval:k-p": "if [ ! -s .dl/suishopetite_20211123.k_p.nnue.cpp.gz ]; then curl --create-dirs -RLo .dl/suishopetite_20211123.k_p.nnue.cpp.gz https://github.com/mizar/YaneuraOu/releases/download/resource/suishopetite_20211123.k_p.nnue.cpp.gz ; fi && gzip -cd .dl/suishopetite_20211123.k_p.nnue.cpp.gz > source/eval/nnue/embedded_nnue.cpp",

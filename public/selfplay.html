@@ -198,7 +198,7 @@
       const hardwareConcurrency = navigator.hardwareConcurrency;
 
       const isSupported = () => {
-        if (typeof WebAssembly !== "object") return false;
+        if (typeof WebAssembly !== "object") return 'WebAssembly not defined';
         const source = Uint8Array.from([
           0, 97, 115, 109, 1, 0, 0, 0, 1, 5, 1, 96, 0, 1, 123, 3, 2, 1, 0, 7, 8,
           1, 4, 116, 101, 115, 116, 0, 0, 10, 15, 1, 13, 0, 65, 0, 253, 17, 65, 0,
@@ -208,9 +208,9 @@
           typeof WebAssembly.validate !== "function" ||
           !WebAssembly.validate(source)
         )
-          return false;
-        if (typeof Atomics !== "object") return false;
-        if (typeof SharedArrayBuffer !== "function") return false;
+          return 'WebAssembly validation failed';
+        if (typeof Atomics !== "object") return 'Atomics not defined';
+        if (typeof SharedArrayBuffer !== "function") return 'SharedArrayBuffer not defined';
         return true;
       };
 
@@ -719,9 +719,9 @@
         return { oninit, view };
       };
 
-      if (!isSupported()) {
+      if (isSupported() !== true) {
         window.alert(
-          "Your browser is not supported. For more information, please take a look at https://github.com/yaneurao/YaneuraOu/."
+          "Your browser is not supported. {{ crossOriginIsolated: " + String(crossOriginIsolated) + " }} {{ " + String(isSupported()) + " }} For more information, please take a look at https://github.com/yaneurao/YaneuraOu/."
         );
       } else {
         const scr = document.createElement('script');

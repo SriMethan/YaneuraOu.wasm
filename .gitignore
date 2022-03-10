@@ -20,11 +20,8 @@ YaneuraOu_backup*.lnk
 .dl/
 .vscode/
 package-lock.json
-yarn.lock
-npmpackages/**/lib/*.js
 npmpackages/**/lib/*.js.gz
 npmpackages/**/lib/*.js.br
-npmpackages/**/lib/*.wasm
 npmpackages/**/lib/*.wasm.gz
 npmpackages/**/lib/*.wasm.br
 docker/

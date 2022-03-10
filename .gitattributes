@@ -62,4 +62,8 @@
 #*.rtf   diff=astextplain
 #*.RTF   diff=astextplain
 
+*.js.gz filter=lfs diff=lfs merge=lfs -text
+*.js.br filter=lfs diff=lfs merge=lfs -text
 *.wasm filter=lfs diff=lfs merge=lfs -text
+*.wasm.gz filter=lfs diff=lfs merge=lfs -text
+*.wasm.br filter=lfs diff=lfs merge=lfs -text

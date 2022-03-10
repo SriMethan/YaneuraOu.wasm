@@ -19,11 +19,16 @@ YaneuraOu_backup*.lnk
 ~*
 .dl/
 .vscode/
-package-lock.json
 npmpackages/**/lib/*.js.gz
 npmpackages/**/lib/*.js.br
 npmpackages/**/lib/*.wasm.gz
 npmpackages/**/lib/*.wasm.br
+source/yaneuraou.*.js
+source/yaneuraou.*.js.gz
+source/yaneuraou.*.js.br
+source/yaneuraou.*.wasm
+source/yaneuraou.*.wasm.gz
+source/yaneuraou.*.wasm.br
 docker/
 public/yaneuraou*
 *_asm.bat

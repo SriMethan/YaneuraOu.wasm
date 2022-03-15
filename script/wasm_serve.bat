@@ -1,5 +1,5 @@
 @echo off
 cd %~dp0
 cd ..
-call npm install
+call yarn install
 call node ./script/express.js

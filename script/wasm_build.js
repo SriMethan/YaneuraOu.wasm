@@ -46,13 +46,13 @@ const pkgobjs = [
     name: "material",
     edition: "YANEURAOU_ENGINE_MATERIAL",
     exportname: "YaneuraOu_Material",
-    extra: "MATERIAL_LEVEL=1 EM_INITIAL_MEMORY_SIZE=25165824 EXTRA_CPPFLAGS='-DENGINE_OPTIONS=\\\"\"option=name=BookFile=type=combo=default=no_book=var=no_book=var=standard_book.db=var=yaneura_book1.db=var=yaneura_book2.db=var=yaneura_book3.db=var=yaneura_book4.db=var=user_book1.db=var=user_book2.db=var=user_book3.db=var=book.bin\\\"\"'",
+    extra: "MATERIAL_LEVEL=1 EM_INITIAL_MEMORY_SIZE=25165824",
   },
   {
     name: "material9",
     edition: "YANEURAOU_ENGINE_MATERIAL",
     exportname: "YaneuraOu_Material9",
-    extra: "MATERIAL_LEVEL=9 EM_INITIAL_MEMORY_SIZE=335544320 EXTRA_CPPFLAGS='-DENGINE_OPTIONS=\\\"\"option=name=BookFile=type=combo=default=no_book=var=no_book=var=standard_book.db=var=yaneura_book1.db=var=yaneura_book2.db=var=yaneura_book3.db=var=yaneura_book4.db=var=user_book1.db=var=user_book2.db=var=user_book3.db=var=book.bin\\\"\"'",
+    extra: "MATERIAL_LEVEL=9 EM_INITIAL_MEMORY_SIZE=335544320",
   },
 ];
 

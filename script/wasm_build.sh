@@ -2,4 +2,4 @@
 pushd `dirname $0`
 pushd ../
 docker pull emscripten/emsdk:latest
-docker run --rm -v ${PWD}:/src emscripten/emsdk:latest npm run-script build
+docker run --rm -v ${PWD}:/src emscripten/emsdk:latest node script/wasm_build.js

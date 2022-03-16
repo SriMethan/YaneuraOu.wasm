@@ -16,7 +16,7 @@ const cors = function(req, res, next) {
 const port = 3000;
 
 app.use(cors)
-app.use("/", expressStaticGzip("./public/", { enableBrotli: true, orderPreference: ['br'] }));
+app.use("/", expressStaticGzip("./public_wasm/", { enableBrotli: true, orderPreference: ['br'] }));
 app.use("/yaneuraou.halfkp/", expressStaticGzip("./npmpackages/yaneuraou.halfkp/lib/", { enableBrotli: true, orderPreference: ['br'] }));
 app.use("/yaneuraou.halfkp.noeval/", expressStaticGzip("./npmpackages/yaneuraou.halfkp.noeval/lib/", { enableBrotli: true, orderPreference: ['br'] }));
 app.use("/yaneuraou.halfkpe9.noeval/", expressStaticGzip("./npmpackages/yaneuraou.halfkpe9.noeval/lib/", { enableBrotli: true, orderPreference: ['br'] }));

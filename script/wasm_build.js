@@ -59,20 +59,20 @@ const pkgobjs = [
 const args = process.argv.slice(2);
 const pkglist = args.length ? pkgobjs.filter((e) => (args.indexOf(e.name) >= 0)) : pkgobjs;
 
-if(!fs.existsSync("source")) {
+if(!fs.existsSync("source/Makefile")) {
   console.error("source folder not found");
-  process.exit();
-}
-if(!fs.existsSync("public_wasm")) {
-  console.error("public_wasm folder not found");
-  process.exit();
+  process.exit(1);
 }
 
 const cwd = process.cwd();
 const cpus = os.cpus().length;
 
 for(const pkgobj of pkglist) {
-  const pkgdir = `npmpackages/yaneuraou.${pkgobj.name}/lib/`;
+  const builddir = `build/wasm/${pkgobj.name}/`;
+  const copy_dirs = [
+    `public_wasm/${pkgobj.name}/`,
+    `npmpackages/yaneuraou.${pkgobj.name}/lib`,
+  ];
   // embedded_nnue
   switch(pkgobj.name) {
     case "halfkp":
@@ -89,51 +89,59 @@ for(const pkgobj of pkglist) {
       break;
   }
   // mkdir
-  fs.mkdirSync(pkgdir, { recursive: true });
+  fs.mkdirSync(fpath.join(cwd, builddir), { recursive: true });
+  for (const copy_dir of copy_dirs) {
+    fs.mkdirSync(fpath.join(cwd, copy_dir), { recursive: true });
+  }
   // rm
-  for(const libfile of fs.readdirSync(pkgdir)) {
-    fs.rmSync(fpath.join(pkgdir, libfile), { force: true });
+  for(const libfile of fs.readdirSync(builddir)) {
+    fs.rmSync(fpath.join(builddir, libfile), { force: true });
   }
   // make
-  execSync(`make -j${cpus} clean tournament COMPILER=em++ TARGET_CPU=WASM YANEURAOU_EDITION=${pkgobj.edition} TARGET=../npmpackages/yaneuraou.${pkgobj.name}/lib/yaneuraou.${pkgobj.name}.js EM_EXPORT_NAME=${pkgobj.exportname} ${pkgobj.extra}`, { cwd: fpath.join(cwd, "source"), stdio: "inherit" });
-  // mkdir public
-  fs.mkdirSync(fpath.join(cwd, `public_wasm/yaneuraou.${pkgobj.name}/`), { recursive: true });
+  execSync(`make -j${cpus} clean tournament COMPILER=em++ TARGET_CPU=WASM YANEURAOU_EDITION=${pkgobj.edition} TARGET=../${builddir}yaneuraou.${pkgobj.name}.js EM_EXPORT_NAME=${pkgobj.exportname} ${pkgobj.extra}`, { cwd: fpath.join(cwd, "source"), stdio: "inherit" });
   // compress, public copy
   for (const fext of ["js", "worker.js", "wasm"]) {
-    const ipath = fpath.join(cwd, `npmpackages/yaneuraou.${pkgobj.name}/lib/yaneuraou.${pkgobj.name}.${fext}`);
-    const opath_br = fpath.join(cwd, `npmpackages/yaneuraou.${pkgobj.name}/lib/yaneuraou.${pkgobj.name}.${fext}.br`);
-    const opath_gz = fpath.join(cwd, `npmpackages/yaneuraou.${pkgobj.name}/lib/yaneuraou.${pkgobj.name}.${fext}.gz`);
-    const ppath = fpath.join(cwd, `public_wasm/yaneuraou.${pkgobj.name}/yaneuraou.${pkgobj.name}.${fext}`);
-    const ppath_br = fpath.join(cwd, `public_wasm/yaneuraou.${pkgobj.name}/yaneuraou.${pkgobj.name}.${fext}.br`);
-    const ppath_gz = fpath.join(cwd, `public_wasm/yaneuraou.${pkgobj.name}/yaneuraou.${pkgobj.name}.${fext}.gz`);
-    const ws_br = fs.createWriteStream(opath_br);
-    const ws_gz = fs.createWriteStream(opath_gz);
-    const { atime, mtime } = fs.statSync(ipath);
-    // copy to public
-    fs.copyFileSync(ipath, ppath);
-    fs.utimesSync(ppath, atime, mtime);
-    // finish caller
+    const bfile = `yaneuraou.${pkgobj.name}.${fext}`;
+    const bfile_br = `yaneuraou.${pkgobj.name}.${fext}.br`;
+    const bfile_gz = `yaneuraou.${pkgobj.name}.${fext}.gz`;
+    const bpath = fpath.join(cwd, builddir, bfile);
+    const bpath_br = fpath.join(cwd, builddir, bfile_br);
+    const bpath_gz = fpath.join(cwd, builddir, bfile_gz);
+    const ws_br = fs.createWriteStream(bpath_br);
+    const ws_gz = fs.createWriteStream(bpath_gz);
+    if(!fs.existsSync(bpath)) {
+      console.error(`file not found: ${bpath}`);
+      process.exit(1);
+    }
+    for(const copy_dir of copy_dirs) {
+      fs.copyFileSync(bpath, fpath.join(cwd, copy_dir, bfile));
+    }
+    const { atime, mtime } = fs.statSync(bpath);
     ws_br.on('finish', () => {
-      fs.copyFileSync(opath_br, ppath_br);
-      fs.utimesSync(opath_br, atime, mtime);
-      fs.utimesSync(ppath_br, atime, mtime);
-      console.log(`compress finished: ${opath_br}`);
+      fs.utimesSync(bpath_br, atime, mtime);
+      for(const copy_dir of copy_dirs) {
+        fs.copyFileSync(bpath_br, fpath.join(cwd, copy_dir, bfile_br));
+        fs.utimesSync(fpath.join(cwd, copy_dir, bfile_br), atime, mtime);
+      }
+      console.log(`compress finished: ${bpath_br}`);
     });
     ws_gz.on('finish', () => {
-      fs.copyFileSync(opath_gz, ppath_gz);
-      fs.utimesSync(opath_gz, atime, mtime);
-      fs.utimesSync(ppath_gz, atime, mtime);
-      console.log(`compress finished: ${opath_gz}`);
+      fs.utimesSync(bpath_gz, atime, mtime);
+      for(const copy_dir of copy_dirs) {
+        fs.copyFileSync(bpath_gz, fpath.join(cwd, copy_dir, bfile_gz));
+        fs.utimesSync(fpath.join(cwd, copy_dir, bfile_gz), atime, mtime);
+      }
+      console.log(`compress finished: ${bpath_gz}`);
     });
     // compress
-    fs.createReadStream(ipath)
+    fs.createReadStream(bpath)
       .pipe(zlib.createBrotliCompress({
         params: {
           [zlib.constants.BROTLI_PARAM_QUALITY]: zlib.constants.BROTLI_MAX_QUALITY,
         }
       }))
       .pipe(ws_br);
-    fs.createReadStream(ipath)
+    fs.createReadStream(bpath)
       .pipe(zlib.createGzip({
         level: zlib.constants.Z_MAX_LEVEL,
       }))

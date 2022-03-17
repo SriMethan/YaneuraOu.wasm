@@ -17,14 +17,14 @@ const port = 3000;
 
 app.use(cors)
 app.use("/", expressStaticGzip("./public_wasm/", { enableBrotli: true, orderPreference: ['br'] }));
-app.use("/yaneuraou.halfkp/", expressStaticGzip("./npmpackages/yaneuraou.halfkp/lib/", { enableBrotli: true, orderPreference: ['br'] }));
-app.use("/yaneuraou.halfkp.noeval/", expressStaticGzip("./npmpackages/yaneuraou.halfkp.noeval/lib/", { enableBrotli: true, orderPreference: ['br'] }));
-app.use("/yaneuraou.halfkpe9.noeval/", expressStaticGzip("./npmpackages/yaneuraou.halfkpe9.noeval/lib/", { enableBrotli: true, orderPreference: ['br'] }));
-app.use("/yaneuraou.halfkpvm.noeval/", expressStaticGzip("./npmpackages/yaneuraou.halfkpvm.noeval/lib/", { enableBrotli: true, orderPreference: ['br'] }));
-app.use("/yaneuraou.k-p/", expressStaticGzip("./npmpackages/yaneuraou.k-p/lib/", { enableBrotli: true, orderPreference: ['br'] }));
-app.use("/yaneuraou.k-p.noeval/", expressStaticGzip("./npmpackages/yaneuraou.k-p.noeval/lib/", { enableBrotli: true, orderPreference: ['br'] }));
-app.use("/yaneuraou.material/", expressStaticGzip("./npmpackages/yaneuraou.material/lib/", { enableBrotli: true, orderPreference: ['br'] }));
-app.use("/yaneuraou.material9/", expressStaticGzip("./npmpackages/yaneuraou.material9/lib/", { enableBrotli: true, orderPreference: ['br'] }));
+app.use("/halfkp/", expressStaticGzip("./build/wasm/halfkp/", { enableBrotli: true, orderPreference: ['br'] }));
+app.use("/halfkp.noeval/", expressStaticGzip("./build/wasm/halfkp.noeval/", { enableBrotli: true, orderPreference: ['br'] }));
+app.use("/halfkpe9.noeval/", expressStaticGzip("./build/wasm/halfkpe9.noeval/", { enableBrotli: true, orderPreference: ['br'] }));
+app.use("/halfkpvm.noeval/", expressStaticGzip("./build/wasm/halfkpvm.noeval/", { enableBrotli: true, orderPreference: ['br'] }));
+app.use("/k-p/", expressStaticGzip("./build/wasm/k-p/", { enableBrotli: true, orderPreference: ['br'] }));
+app.use("/k-p.noeval/", expressStaticGzip("./build/wasm/k-p.noeval/", { enableBrotli: true, orderPreference: ['br'] }));
+app.use("/material/", expressStaticGzip("./build/wasm/material/", { enableBrotli: true, orderPreference: ['br'] }));
+app.use("/material9/", expressStaticGzip("./build/wasm/material9/", { enableBrotli: true, orderPreference: ['br'] }));
 
 app.listen(port, () => {
   console.log(`listening at http://localhost:${port}`);

@@ -26,7 +26,7 @@ source/yaneuraou.*.wasm
 source/yaneuraou.*.wasm.gz
 source/yaneuraou.*.wasm.br
 docker/
-public_wasm/yaneuraou.*
+public_wasm/*/yaneuraou.*
 *_asm.bat
 *.nnue
 *.nnue.*

@@ -34,6 +34,10 @@ jobs:
         with:
           path: main
 
+      - name: docker pull
+        run: |
+          docker pull emscripten/emsdk:latest
+
       - name: build wasm
         run: |
           docker run --rm -v ${PWD}/main:/src emscripten/emsdk:latest node script/wasm_build.js ${{ matrix.edition }}

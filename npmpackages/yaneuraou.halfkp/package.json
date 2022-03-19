@@ -11,7 +11,7 @@
   "homepage": "https://github.com/mizar/YaneuraOu/tree/wasm/npmpackages/yaneuraou.halfkp#readme",
   "license": "GPL-3.0",
   "main": "lib/yaneuraou.halfkp.js",
-  "types": "yaneuraou.halfkp.d.ts",
+  "types": "lib/yaneuraou.halfkp.d.ts",
   "bin": {
     "usi.halfkp": "usi.halfkp.js"
   },

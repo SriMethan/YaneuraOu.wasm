@@ -11,6 +11,7 @@
   "homepage": "https://github.com/mizar/YaneuraOu/tree/wasm/npmpackages/yaneuraou.halfkp.noeval#readme",
   "license": "GPL-3.0",
   "main": "lib/yaneuraou.halfkp.noeval.js",
+  "types": "lib/yaneuraou.halfkp.noeval.d.ts",
   "bin": {
     "usi.halfkp.noeval": "usi.halfkp.noeval.js"
   },

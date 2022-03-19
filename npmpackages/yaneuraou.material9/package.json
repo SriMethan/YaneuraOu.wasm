@@ -11,7 +11,7 @@
   "homepage": "https://github.com/mizar/YaneuraOu/tree/wasm/npmpackages/yaneuraou.material9#readme",
   "license": "GPL-3.0",
   "main": "lib/yaneuraou.material9.js",
-  "types": "yaneuraou.material9.d.ts",
+  "types": "lib/yaneuraou.material9.d.ts",
   "bin": {
     "usi.material9": "usi.material9.js"
   },

@@ -10,8 +10,8 @@
   "author": "Mizar <mizar.jp@gmail.com>",
   "homepage": "https://github.com/mizar/YaneuraOu/tree/wasm/npmpackages/yaneuraou.material#readme",
   "license": "GPL-3.0",
-  "types": "yaneuraou.material.d.ts",
   "main": "lib/yaneuraou.material.js",
+  "types": "lib/yaneuraou.material.d.ts",
   "bin": {
     "usi.material": "usi.material.js"
   },

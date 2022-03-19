@@ -11,7 +11,7 @@
   "homepage": "https://github.com/mizar/YaneuraOu/tree/wasm/npmpackages/yaneuraou.k-p#readme",
   "license": "GPL-3.0",
   "main": "lib/yaneuraou.k-p.js",
-  "types": "yaneuraou.k-p.d.ts",
+  "types": "lib/yaneuraou.k-p.d.ts",
   "bin": {
     "usi.k-p": "usi.k-p.js"
   },

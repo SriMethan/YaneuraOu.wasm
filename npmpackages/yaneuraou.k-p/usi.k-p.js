@@ -28,7 +28,8 @@ async function main(argv) {
     yaneuraou.postMessage("setoption name BookDir value .");
     yaneuraou.postMessage(`setoption name BookFile value ${path.basename(USI_BOOK_FILE)}`);
   }
-  if (USI_EVAL_FILE) {
+  const USE_EVAL_FILE = true;
+  if (USE_EVAL_FILE && USI_EVAL_FILE) {
     const buffer = await fs.promises.readFile(USI_EVAL_FILE);
     const filebase = path.basename(USI_EVAL_FILE);
     FS.writeFile(`/${filebase}`, buffer);

@@ -11,6 +11,7 @@
   "homepage": "https://github.com/mizar/YaneuraOu/tree/wasm/npmpackages/yaneuraou.k-p.noeval#readme",
   "license": "GPL-3.0",
   "main": "lib/yaneuraou.k-p.noeval.js",
+  "types": "lib/yaneuraou.k-p.noeval.d.ts",
   "bin": {
     "usi.k-p.noeval": "usi.k-p.noeval.js"
   },

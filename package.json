@@ -8,8 +8,8 @@
     "webassembly"
   ],
   "license": "GPL-3.0",
-  "repository": "github:mizar/YaneuraOu",
-  "homepage": "https://github.com/yaneurao/YaneuraOu/",
+  "repository": "github:mizar/YaneuraOu.wasm",
+  "homepage": "https://github.com/yaneurao/YaneuraOu.wasm/",
   "scripts": {
     "versionup": "lerna version --force-publish=@mizarjp/yaneuraou.*",
     "versionup:prepatch": "lerna version prepatch --force-publish=@mizarjp/yaneuraou.*",

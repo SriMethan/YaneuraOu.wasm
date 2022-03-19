@@ -8,7 +8,7 @@
     "webassembly"
   ],
   "author": "Mizar <mizar.jp@gmail.com>",
-  "homepage": "https://github.com/mizar/YaneuraOu/tree/wasm/npmpackages/yaneuraou.halfkp.noeval#readme",
+  "homepage": "https://github.com/mizar/YaneuraOu.wasm/tree/wasm/npmpackages/yaneuraou.halfkp.noeval#readme",
   "license": "GPL-3.0",
   "main": "lib/yaneuraou.halfkp.noeval.js",
   "types": "lib/yaneuraou.halfkp.noeval.d.ts",
@@ -33,7 +33,7 @@
     "test": "echo \"Error: run tests from root\" && exit 1"
   },
   "bugs": {
-    "url": "https://github.com/mizar/YaneuraOu/issues"
+    "url": "https://github.com/mizar/YaneuraOu.wasm/issues"
   },
   "devDependencies": {
     "@types/emscripten": "^1.39.6",

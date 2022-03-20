@@ -1108,7 +1108,7 @@ jobs:
       - name: Download artifact to get build-wasm
         uses: actions/download-artifact@v2
         with:
-          name: archive-wasm${{ github.run_number }}_${{ github.sha }}
+          name: archive-wasm_${{ github.run_number }}_${{ github.sha }}
           path: release-wasm
       - name: Display structure of downloaded files
         run: ls -R release-windows release-windows-material release-windows-suisho release-deep-windows release-android release-android-suisho release-macos-suisho release-macos-suisho release-wasm

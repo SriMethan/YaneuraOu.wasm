@@ -936,8 +936,8 @@ jobs:
           path: release
       - name: copy docs
         run: |
-          cp main/Copying.txt release/wasm
-          cp -r main/docs release/wasm
+          cp main_halfkp/Copying.txt release/wasm
+          cp -r main_halfkp/docs release/wasm
           curl -LRo main_halfkp/source/eval/nnue/embedded_nnue.cpp.gz https://github.com/mizar/YaneuraOu/releases/download/resource/suisho5_20211123.halfkp.nnue.cpp.gz;
           curl -LRo main_k_p/source/eval/nnue/embedded_nnue.cpp.gz https://github.com/mizar/YaneuraOu/releases/download/resource/suishopetite_20211123.k_p.nnue.cpp.gz;
           gzip -df main_halfkp/source/eval/nnue/embedded_nnue.cpp.gz;

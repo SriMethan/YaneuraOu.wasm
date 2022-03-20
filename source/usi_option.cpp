@@ -160,7 +160,7 @@ namespace USI {
 #else
 
 		// TANUKI_MATE_ENGINEのとき
-		o["USI_Hash"] << Option(4096, 1, MaxHashMB);
+		o["USI_Hash"] << Option(std::min(4096, MaxHashMB), 1, MaxHashMB);
 
 #endif // !defined(TANUKI_MATE_ENGINE) && !defined(YANEURAOU_MATE_ENGINE)
 

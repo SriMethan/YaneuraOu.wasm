@@ -27,6 +27,8 @@ jobs:
           - k-p.noeval
           - material
           - material9
+          - yaneuraou-mate
+          - tanuki-mate
 
     steps:
       - name: Checkout own repository

@@ -62,6 +62,20 @@ const pkgobjs = [
     extra: "MATERIAL_LEVEL=9 EM_INITIAL_MEMORY_SIZE=335544320",
     evalfile: false,
   },
+  {
+    name: "yaneuraou-mate",
+    edition: "YANEURAOU_MATE_ENGINE",
+    exportname: "YaneuraOu_MATE",
+    extra: "EM_INITIAL_MEMORY_SIZE=25165824",
+    evalfile: false,
+  },
+  {
+    name: "tanuki-mate",
+    edition: "TANUKI_MATE_ENGINE",
+    exportname: "tanuki_MATE",
+    extra: "EM_INITIAL_MEMORY_SIZE=25165824",
+    evalfile: false,
+  },
 ];
 
 const args = process.argv.slice(2);

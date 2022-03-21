@@ -18,6 +18,7 @@ YaneuraOu_backup*.lnk
 .script/
 .vscode/
 docker/
+public_wasm/*/yaneuraou.*
 *.nnue
 *.nnue.*
 
@@ -52,7 +53,7 @@ x64/
 x86/
 build/
 bld/
-[Bb]in/
+#[Bb]in/
 [Oo]bj/
 exe/
 

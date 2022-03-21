@@ -96,8 +96,12 @@ for(const pkgobj of pkglist) {
     `npmpackages/yaneuraou.${pkgobj.name}/`,
   ];
   const dts_copy_dirs = [
+    `public_wasm/${pkgobj.name}/`,
+    `npmpackages/yaneuraou.${pkgobj.name}/lib/`,
   ];
   const lib_copy_dirs = [
+    `public_wasm/${pkgobj.name}/`,
+    `npmpackages/yaneuraou.${pkgobj.name}/lib/`,
   ];
   // embedded_nnue
   switch(pkgobj.name) {

@@ -17,6 +17,12 @@ YaneuraOu_backup*.lnk
 *.vspx
 *~
 ~*
+.dl/
+.script/
+.vscode/
+docker/
+*.nnue
+*.nnue.*
 
 # embedded_nnue.cpp
 embedded_nnue.cpp

@@ -3,9 +3,6 @@
 
 # added by yaneurao
 
-*.gitattributes
-# *.gitignore
-*.bat
 *.rb
 YaneuraOu_backup*.lnk
 バージョン履歴.txt
@@ -17,6 +14,12 @@ YaneuraOu_backup*.lnk
 *.vspx
 *~
 ~*
+.dl/
+.script/
+.vscode/
+docker/
+*.nnue
+*.nnue.*
 
 # embedded_nnue.cpp
 embedded_nnue.cpp

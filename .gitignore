@@ -3,8 +3,6 @@
 
 # added by yaneurao
 
-*.gitattributes
-# *.gitignore
 *.bat
 *.rb
 YaneuraOu_backup*.lnk

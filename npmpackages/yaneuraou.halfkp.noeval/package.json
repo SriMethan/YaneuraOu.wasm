@@ -1,6 +1,6 @@
 {
   "name": "@mizarjp/yaneuraou.halfkp.noeval",
-  "version": "7.0.1-alpha.27",
+  "version": "7.0.1-alpha.28",
   "description": "YaneuraOu shogi engine (NNUE HalfKP noeval)",
   "keywords": [
     "shogi",

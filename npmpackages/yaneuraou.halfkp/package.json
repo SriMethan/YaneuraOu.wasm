@@ -1,6 +1,6 @@
 {
   "name": "@mizarjp/yaneuraou.halfkp",
-  "version": "7.0.1-alpha.34",
+  "version": "7.0.1-alpha.35",
   "description": "YaneuraOu shogi engine (NNUE HalfKP)",
   "keywords": [
     "shogi",
